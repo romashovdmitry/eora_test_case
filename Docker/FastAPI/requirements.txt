@@ -1,0 +1,45 @@
+# Defaults for FastAPI
+# https://fastapi.tiangolo.com/deployment/docker/#package-requirements
+fastapi==0.116.1
+pydantic==2.11.7
+uvicorn==0.35.0
+starlette==0.47.2
+
+# asyncio libs
+aiohttp==3.12.15
+httpx==0.28.1  # для HTTP запросов
+
+# for communication with database
+asyncpg==0.30.0
+SQLAlchemy==2.0.43
+alembic==1.16.4
+psycopg2-binary
+
+# sqladmin admin panel
+sqladmin
+
+# JWT for auth
+itsdangerous # иначе возникает ошибка "No module named 'itsdangerous'"
+
+# for working with HTML
+trafilatura==2.0.0
+beautifulsoup4==4.13.4  # для парсинга HTML
+
+# AI/ML для RAG системы
+sentence-transformers  # для создания эмбеддингов (включает torch как зависимость)
+faiss-cpu  # для векторного поиска
+transformers==4.53.0  # HuggingFace Transformers
+numpy  # для работы с векторами
+
+# используется в admin.py
+markupsafe==3.0.2
+
+# Testing dependencies
+pytest==7.4.0
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+pytest-mock==3.11.1
+aiosqlite==0.21.0
+
+# для работы с ошибками при http-запросах
+tenacity==8.2.3

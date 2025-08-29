@@ -1,0 +1,77 @@
+services:
+
+    eora_fast_api:
+        env_file:
+            - .env
+        build:
+            context: .
+            dockerfile: ./Docker/FastAPI/Dockerfile
+        container_name: eora-FastAPI
+        restart: always
+        volumes:
+            - ./app:/app
+        networks:
+            - eora-backend-network
+        depends_on:
+            eora_backend_database_container:
+                condition: service_healthy
+
+    eora_backend_database_container:
+        container_name: eora_backend_database_container
+        build:
+            context: .
+            dockerfile: ./Docker/Database/Dockerfile
+        env_file:
+            - .env
+        # https://stackoverflow.com/a/59572350/24040439
+        ports:
+          - 127.0.0.1:5433:5432
+        environment:
+          - POSTGRES_USER=${POSTGRES_USER}
+          - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+          - DB_NAME=${DB_NAME}
+          - POSTGRES_DB=${POSTGRES_DB}
+        networks:
+          - eora-backend-network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+            interval: 5s
+            timeout: 5s
+            retries: 12
+            start_period: 10s
+
+    eora_pgadmin:
+        image: dpage/pgadmin4
+        container_name: eora_pgadmin
+        env_file:
+            - .env
+        ports:
+            - 81:80
+        environment:
+            - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+            - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+        depends_on:
+            - eora_backend_database_container
+        networks:
+            - eora-backend-network
+
+    eora_nginx:
+        container_name: eora_nginx
+        build:
+            context: .
+            dockerfile: ./Docker/Nginx/Dockerfile
+        ports:
+          - "80:80"
+        depends_on:
+            - eora_fast_api
+        volumes:
+            - .:/app
+        networks:
+          - eora-backend-network
+
+networks:
+  eora-backend-network:
+
+volumes:
+  huggingface-cache:
+    driver: local
